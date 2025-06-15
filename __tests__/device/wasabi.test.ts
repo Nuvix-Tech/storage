@@ -159,7 +159,7 @@ describe('Wasabi Device', () => {
             }
         });
 
-        test.skip('should write and read file', async () => {
+        test('should write and read file', async () => {
             // This test would require real credentials
             const testFile = `test-${Date.now()}.txt`;
             const testContent = 'Hello, Wasabi World!';
@@ -170,9 +170,9 @@ describe('Wasabi Device', () => {
             
             // Cleanup
             await wasabiDevice.delete(testFile);
-        });
+        }, 50000);
 
-        test.skip('should upload and download file', async () => {
+        test('should upload and download file', async () => {
             // This test would require real credentials
             const testFile = `upload-test-${Date.now()}.txt`;
             const testContent = 'Upload test content';
@@ -188,9 +188,9 @@ describe('Wasabi Device', () => {
             
             // Cleanup
             await wasabiDevice.delete(testFile);
-        });
+        }, 50000);
 
-        test.skip('should handle multipart upload', async () => {
+        test('should handle multipart upload', async () => {
             // This test would require real credentials
             const testFile = `multipart-test-${Date.now()}.txt`;
             const chunk1 = 'First chunk ';
@@ -210,15 +210,15 @@ describe('Wasabi Device', () => {
             
             // Cleanup
             await wasabiDevice.delete(testFile);
-        });
+        }, 50000);
 
-        test.skip('should list files', async () => {
+        test('should list files', async () => {
             // This test would require real credentials
             const files = await wasabiDevice.getFiles('');
             expect(Array.isArray(files.Contents) || files.Contents === undefined).toBe(true);
-        });
+        }, 50000);
 
-        test.skip('should get file metadata', async () => {
+        test('should get file metadata', async () => {
             // This test would require real credentials
             const testFile = `metadata-test-${Date.now()}.txt`;
             const testContent = 'Metadata test content';
@@ -234,7 +234,7 @@ describe('Wasabi Device', () => {
             
             // Cleanup
             await wasabiDevice.delete(testFile);
-        });
+        },  50000);
     });
 
     describe('Error Handling', () => {
