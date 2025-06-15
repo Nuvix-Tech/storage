@@ -217,4 +217,74 @@ export abstract class Device {
 
         return '/' + absolutes.join('/');
     }
+
+    protected async getMimeType(filePath: string): Promise<string> {
+        const path = await import('path');
+        
+        // Node.js doesn't have a built-in MIME type module, so we'll use a comprehensive mapping
+        const ext = path.extname(filePath).toLowerCase().slice(1);
+        const mimeTypes: Record<string, string> = {
+            // Text
+            'txt': 'text/plain',
+            'html': 'text/html',
+            'htm': 'text/html',
+            'css': 'text/css',
+            'csv': 'text/csv',
+            'xml': 'text/xml',
+            
+            // JavaScript
+            'js': 'application/javascript',
+            'mjs': 'application/javascript',
+            'json': 'application/json',
+            
+            // Images
+            'png': 'image/png',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'gif': 'image/gif',
+            'svg': 'image/svg+xml',
+            'webp': 'image/webp',
+            'ico': 'image/x-icon',
+            'bmp': 'image/bmp',
+            'tiff': 'image/tiff',
+            'tif': 'image/tiff',
+            
+            // Documents
+            'pdf': 'application/pdf',
+            'doc': 'application/msword',
+            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls': 'application/vnd.ms-excel',
+            'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'ppt': 'application/vnd.ms-powerpoint',
+            'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            
+            // Audio
+            'mp3': 'audio/mpeg',
+            'wav': 'audio/wav',
+            'ogg': 'audio/ogg',
+            'm4a': 'audio/mp4',
+            
+            // Video
+            'mp4': 'video/mp4',
+            'avi': 'video/x-msvideo',
+            'mov': 'video/quicktime',
+            'wmv': 'video/x-ms-wmv',
+            'flv': 'video/x-flv',
+            'webm': 'video/webm',
+            
+            // Archives
+            'zip': 'application/zip',
+            'rar': 'application/x-rar-compressed',
+            'tar': 'application/x-tar',
+            'gz': 'application/gzip',
+            '7z': 'application/x-7z-compressed',
+            
+            // Other
+            'bin': 'application/octet-stream',
+            'exe': 'application/octet-stream',
+            'dmg': 'application/octet-stream'
+        };
+        
+        return mimeTypes[ext] || 'application/octet-stream';
+    }
 }
