@@ -2,19 +2,40 @@
   "name": "@nuvix/storage",
   "version": "0.1.0",
   "description": "S3-compatible storage library for Nuvix BaaS platform",
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.cjs.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "build": "tsc",
+    "build": "rollup -c",
+    "build:watch": "rollup -c --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "bun run clean && bun run build",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix"
   },
   "dependencies": {
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.5",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.2",
     "@types/jest": "^29.5.0",
     "@types/node": "^18.15.11",
     "@types/xml2js": "^0.4.14",
@@ -22,6 +43,8 @@
     "@typescript-eslint/parser": "^5.59.0",
     "eslint": "^8.38.0",
     "jest": "^29.5.0",
+    "rollup": "^4.43.0",
+    "rollup-plugin-dts": "^6.2.1",
     "ts-jest": "^29.1.0",
     "typescript": "^5.0.4"
   },
@@ -29,8 +52,25 @@
     "nuvix",
     "storage",
     "s3",
-    "baas"
+    "baas",
+    "wasabi",
+    "cloud-storage",
+    "file-upload",
+    "typescript",
+    "esm",
+    "commonjs"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nuvix/storage.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nuvix/storage/issues"
+  },
+  "homepage": "https://github.com/nuvix/storage#readme"
 }
