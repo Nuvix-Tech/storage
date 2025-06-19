@@ -40,7 +40,7 @@ export class Local extends Device {
             try {
                 await fs.rename(source, filePath);
                 return chunks;
-            } catch (error) {
+            } catch {
                 throw new Error(`Can't upload file ${filePath}`);
             }
         }
@@ -50,11 +50,10 @@ export class Local extends Device {
 
         const chunkFilePath = path.join(path.dirname(tmp), `${path.parse(filePath).name}.part.${chunk}`);
 
-        // Skip writing chunk if the chunk was re-uploaded
         if (!(await this.exists(chunkFilePath))) {
             try {
                 await fs.appendFile(tmp, `${chunk}\n`);
-            } catch (error) {
+            } catch {
                 throw new Error(`Can't write chunk log ${tmp}`);
             }
         }
@@ -71,19 +70,19 @@ export class Local extends Device {
             }
 
             return chunksReceived;
-        } catch (error) {
+        } catch {
             throw new Error(`Failed to write chunk ${chunk}`);
         }
     }
 
-    async uploadData(data: string, filePath: string, contentType: string, chunk: number = 1, chunks: number = 1, metadata: Record<string, any> = {}): Promise<number> {
+    async uploadData(data: string | Buffer, filePath: string, contentType: string, chunk: number = 1, chunks: number = 1, metadata: Record<string, any> = {}): Promise<number> {
         await this.createDirectory(path.dirname(filePath));
 
         if (chunks === 1) {
             try {
                 await fs.writeFile(filePath, data);
                 return chunks;
-            } catch (error) {
+            } catch {
                 throw new Error(`Can't write file ${filePath}`);
             }
         }
@@ -105,7 +104,7 @@ export class Local extends Device {
             }
 
             return chunksReceived;
-        } catch (error) {
+        } catch {
             throw new Error(`Failed to write chunk ${chunk}`);
         }
     }
@@ -120,7 +119,7 @@ export class Local extends Device {
                 const data = await fs.readFile(part);
                 await fs.appendFile(filePath, data);
                 await fs.unlink(part);
-            } catch (error) {
+            } catch {
                 throw new Error(`Failed to read/append chunk ${part}`);
             }
         }
@@ -173,28 +172,29 @@ export class Local extends Device {
         return fs.rmdir(tmp).then(() => true).catch(() => false);
     }
 
-    async read(filePath: string, offset: number = 0, length?: number): Promise<string> {
+    async read(filePath: string, offset: number = 0, length?: number): Promise<Buffer> {
         if (!(await this.exists(filePath))) {
             throw new Error('File Not Found');
         }
 
         const fileHandle = await fs.open(filePath, 'r');
         try {
-            const buffer = Buffer.alloc(length || (await fileHandle.stat()).size - offset);
-            await fileHandle.read(buffer, 0, buffer.length, offset);
-            return buffer.toString();
+            const size = length ?? (await fileHandle.stat()).size - offset;
+            const buffer = Buffer.alloc(size);
+            await fileHandle.read(buffer, 0, size, offset);
+            return buffer;
         } finally {
             await fileHandle.close();
         }
     }
 
-    async write(filePath: string, data: string, contentType: string = ''): Promise<boolean> {
+    async write(filePath: string, data: string | Buffer, contentType: string = ''): Promise<boolean> {
         try {
             await this.createDirectory(path.dirname(filePath));
             await fs.writeFile(filePath, data);
             return true;
-        } catch (error) {
-            throw new Error(`Can't create directory ${path.dirname(filePath)}`);
+        } catch {
+            throw new Error(`Can't write to path ${filePath}`);
         }
     }
 
@@ -207,7 +207,7 @@ export class Local extends Device {
             await this.createDirectory(path.dirname(target));
             await fs.rename(source, target);
             return true;
-        } catch (error) {
+        } catch {
             return false;
         }
     }
@@ -225,8 +225,9 @@ export class Local extends Device {
             } else if (stats.isFile() || stats.isSymbolicLink()) {
                 await fs.unlink(filePath);
             }
+
             return true;
-        } catch (error) {
+        } catch {
             return false;
         }
     }
@@ -257,7 +258,7 @@ export class Local extends Device {
 
             await fs.rmdir(fullPath);
             return true;
-        } catch (error) {
+        } catch {
             return false;
         }
     }
@@ -277,20 +278,7 @@ export class Local extends Device {
     }
 
     async getFileMimeType(filePath: string): Promise<string> {
-        // Note: Node.js doesn't have a built-in mime-type detection
-        // You might want to use a library like 'mime-types' or 'file-type'
-        const ext = path.extname(filePath);
-        const mimeTypes: Record<string, string> = {
-            '.txt': 'text/plain',
-            '.html': 'text/html',
-            '.js': 'application/javascript',
-            '.json': 'application/json',
-            '.png': 'image/png',
-            '.jpg': 'image/jpeg',
-            '.jpeg': 'image/jpeg',
-            '.gif': 'image/gif'
-        };
-        return mimeTypes[ext] || 'application/octet-stream';
+        return this.getMimeType(filePath)
     }
 
     async getFileHash(filePath: string): Promise<string> {
@@ -302,7 +290,7 @@ export class Local extends Device {
         try {
             await fs.mkdir(dirPath, { recursive: true, mode: 0o755 });
             return true;
-        } catch (error) {
+        } catch {
             return false;
         }
     }
@@ -325,7 +313,7 @@ export class Local extends Device {
             }
 
             return size;
-        } catch (error) {
+        } catch {
             return -1;
         }
     }
@@ -341,17 +329,10 @@ export class Local extends Device {
     }
 
     async getFiles(dir: string, max: number = this.MAX_PAGE_SIZE, continuationToken: string = ''): Promise<string[]> {
-        const files: string[] = [];
-
         try {
             const entries = await fs.readdir(dir, { withFileTypes: true });
-
-            for (const entry of entries) {
-                files.push(path.join(dir, entry.name));
-            }
-
-            return files;
-        } catch (error) {
+            return entries.map(entry => path.join(dir, entry.name));
+        } catch {
             return [];
         }
     }

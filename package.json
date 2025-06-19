@@ -1,7 +1,7 @@
 {
   "name": "@nuvix/storage",
-  "version": "0.1.0",
-  "description": "S3-compatible storage library for Nuvix BaaS platform",
+  "version": "1.0.0",
+  "description": "S3-compatible storage library for Nuvix BaaS platform with support for AWS S3, Wasabi, MinIO, and local storage",
   "type": "module",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -54,6 +54,7 @@
     "s3",
     "baas",
     "wasabi",
+    "minio",
     "cloud-storage",
     "file-upload",
     "typescript",
@@ -67,10 +68,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nuvix/storage.git"
+    "url": "https://github.com/nuvix-tech/storage.git"
   },
   "bugs": {
-    "url": "https://github.com/nuvix/storage/issues"
+    "url": "https://github.com/nuvix-tech/storage/issues"
   },
-  "homepage": "https://github.com/nuvix/storage#readme"
+  "homepage": "https://github.com/nuvix-tech/storage#readme"
 }

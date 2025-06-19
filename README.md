@@ -1,11 +1,11 @@
 # @nuvix/storage
 
-A powerful, TypeScript-first S3-compatible storage library for the Nuvix BaaS platform. Supports multiple storage backends including local filesystem, AWS S3, and Wasabi with a unified API.
+A powerful, TypeScript-first S3-compatible storage library for the Nuvix BaaS platform. Supports multiple storage backends including local filesystem, AWS S3, Wasabi, and MinIO with a unified API.
 
 ## ✨ Features
 
 - 🚀 **S3-Compatible API** - Consistent interface across all storage providers
-- 🔌 **Multiple Storage Backends** - Local, AWS S3, Wasabi, and more
+- 🔌 **Multiple Storage Backends** - Local, AWS S3, Wasabi, MinIO, and more
 - 📝 **TypeScript First** - Full type safety with comprehensive TypeScript definitions
 - ✅ **File Validation** - Built-in validators for file types, sizes, names, and extensions
 - 🔄 **Chunked Uploads** - Support for large file uploads with multipart upload
@@ -32,7 +32,7 @@ bun add @nuvix/storage
 
 ### ESM (Modern)
 ```typescript
-import { Storage, Local, Wasabi, FileExt, FileSize } from '@nuvix/storage';
+import { Storage, Local, Wasabi, MinIO, FileExt, FileSize } from '@nuvix/storage';
 
 // Set up local storage
 const localStorage = new Local('./uploads');
@@ -45,7 +45,7 @@ await localDevice.write('test.txt', 'Hello, World!', 'text/plain');
 
 ### CommonJS (Legacy)
 ```javascript
-const { Storage, Local, Wasabi } = require('@nuvix/storage');
+const { Storage, Local, Wasabi, MinIO } = require('@nuvix/storage');
 
 // Set up local storage
 const localStorage = new Local('./uploads');
@@ -110,6 +110,36 @@ const s3Storage = new S3(
 );
 
 Storage.setDevice('s3', s3Storage);
+```
+
+### MinIO
+```typescript
+import { MinIO, Storage } from '@nuvix/storage';
+
+const minioStorage = new MinIO(
+  'my-app-uploads',           // root path
+  'minioadmin',               // access key (default MinIO credentials)
+  'minioadmin',               // secret key (default MinIO credentials)
+  'your-bucket-name',         // bucket name
+  'localhost:9000',           // MinIO endpoint
+  MinIO.ACL_PRIVATE,          // ACL (optional)
+  false                       // useSSL (optional, default: false)
+);
+
+Storage.setDevice('minio', minioStorage);
+
+// Upload to MinIO
+await minioStorage.write('local-file.txt', 'Hello, MinIO!', 'text/plain');
+
+// Read from MinIO
+const content = await minioStorage.read('local-file.txt');
+
+// Check if file exists
+const exists = await minioStorage.exists('local-file.txt');
+
+// Get file information
+const size = await minioStorage.getFileSize('local-file.txt');
+const mimeType = await minioStorage.getFileMimeType('local-file.txt');
 ```
 
 ## 🛡️ File Validation
@@ -255,6 +285,12 @@ export WASABI_BUCKET="your-test-bucket"
 export AWS_ACCESS_KEY="your-access-key"
 export AWS_SECRET_KEY="your-secret-key"
 export AWS_BUCKET="your-test-bucket"
+
+# For MinIO testing
+export MINIO_ACCESS_KEY="minioadmin"
+export MINIO_SECRET_KEY="minioadmin"
+export MINIO_BUCKET="test-bucket"
+export MINIO_ENDPOINT="localhost:9000"
 ```
 
 ## 📝 API Reference

@@ -8,6 +8,7 @@ export class Storage {
     static readonly DEVICE_S3 = 's3';
     // static readonly DEVICE_DO_SPACES = 'dospaces';
     static readonly DEVICE_WASABI = 'wasabi';
+    static readonly DEVICE_MINIO = 'minio';
     // static readonly DEVICE_BACKBLAZE = 'backblaze';
     // static readonly DEVICE_LINODE = 'linode';
 

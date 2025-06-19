@@ -9,3 +9,4 @@ export * from './src/validator/upload';
 export * from './src/device/local';
 export * from './src/device/s3';
 export * from './src/device/wasabi';
+export * from './src/device/minio';

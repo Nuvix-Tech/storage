@@ -136,23 +136,22 @@ export class S3 extends Device {
     }
 
     async upload(source: string | Buffer, path: string, chunk: number = 1, chunks: number = 1, metadata: Record<string, any> = {}): Promise<number> {
-        let data: string;
+        let data: Buffer;
         let contentType: string;
-        
+
         if (typeof source === 'string') {
             const fs = await import('fs');
-            const fileData = await fs.promises.readFile(source);
-            data = fileData.toString();
+            data = await fs.promises.readFile(source);
             contentType = await this.getMimeType(source);
         } else {
-            data = source.toString();
+            data = source;
             contentType = metadata.contentType || 'application/octet-stream';
         }
-        
+
         return this.uploadData(data, path, contentType, chunk, chunks, metadata);
     }
 
-    async uploadData(data: string, path: string, contentType: string, chunk: number = 1, chunks: number = 1, metadata: Record<string, any> = {}): Promise<number> {
+    async uploadData(data: Buffer, path: string, contentType: string, chunk: number = 1, chunks: number = 1, metadata: Record<string, any> = {}): Promise<number> {
         if (chunk === 1 && chunks === 1) {
             await this.write(path, data, contentType);
             return 1;
@@ -168,11 +167,13 @@ export class S3 extends Device {
         metadata['chunks'] = metadata['chunks'] || 0;
 
         const etag = await this.uploadPart(data, path, contentType, chunk, uploadId);
+        const cleanETag = etag.replace(/^"|"$/g, '');
 
         if (!(chunk in metadata['parts'])) {
             metadata['chunks']++;
         }
-        metadata['parts'][chunk] = etag;
+
+        metadata['parts'][chunk] = cleanETag;
 
         if (metadata['chunks'] === chunks) {
             await this.completeMultipartUpload(path, uploadId, metadata['parts']);
@@ -219,7 +220,7 @@ export class S3 extends Device {
         return response.body['UploadId'];
     }
 
-    protected async uploadPart(data: string, path: string, contentType: string, chunk: number, uploadId: string): Promise<string> {
+    protected async uploadPart(data: Buffer, path: string, contentType: string, chunk: number, uploadId: string): Promise<string> {
         const uri = path !== '' ? `/${encodeURIComponent(path).replace(/%2F/g, '/').replace(/%3F/g, '?')}` : '/';
 
         this.headers['content-type'] = contentType;
@@ -259,7 +260,7 @@ export class S3 extends Device {
         return true;
     }
 
-    async read(path: string, offset: number = 0, length?: number): Promise<string> {
+    async read(path: string, offset: number = 0, length?: number): Promise<Buffer> {
         delete this.amzHeaders['x-amz-acl'];
         delete this.amzHeaders['x-amz-content-sha256'];
         delete this.headers['content-type'];
@@ -270,13 +271,16 @@ export class S3 extends Device {
         if (length !== undefined) {
             const end = offset + length - 1;
             this.headers['range'] = `bytes=${offset}-${end}`;
+        } else {
+            delete this.headers['range'];
         }
 
         const response = await this.call(S3.METHOD_GET, uri, '', {}, false);
-        return response.body;
+        const arrayBuffer = await response.body.arrayBuffer();
+        return Buffer.from(arrayBuffer);
     }
 
-    async write(path: string, data: string, contentType: string = ''): Promise<boolean> {
+    async write(path: string, data: Buffer, contentType: string = ''): Promise<boolean> {
         const uri = path !== '' ? `/${encodeURIComponent(path).replace(/%2F/g, '/').replace(/%3F/g, '?')}` : '/';
 
         this.headers['content-type'] = contentType;
@@ -415,7 +419,7 @@ export class S3 extends Device {
         return response.headers;
     }
 
-    private getSignatureV4(method: string, uri: string, parameters: Record<string, string> = {}): string {
+    protected getSignatureV4(method: string, uri: string, parameters: Record<string, string> = {}): string {
         const service = 's3';
         const region = this.region;
         const algorithm = 'AWS4-HMAC-SHA256';
@@ -474,7 +478,7 @@ export class S3 extends Device {
         return `${algorithm} Credential=${this.accessKey}/${credentialScope},SignedHeaders=${Object.keys(sortedCombinedHeaders).join(';')},Signature=${signature}`;
     }
 
-    protected async call(method: string, uri: string, data: string = '', parameters: Record<string, string> = {}, decode: boolean = true): Promise<any> {
+    protected async call(method: string, uri: string, data: string | Buffer = '', parameters: Record<string, string> = {}, decode: boolean = true): Promise<any> {
         const crypto = await import('crypto');
 
         uri = this.getAbsolutePath(uri);
@@ -541,17 +545,20 @@ export class S3 extends Device {
         };
     }
 
-    private md5(data: string): Buffer {
-        return crypto.createHash('md5').update(data).digest();
+    protected md5(data: string | Buffer): Buffer {
+        const buffer = typeof data === 'string' ? Buffer.from(data, 'utf8') : data;
+        return crypto.createHash('md5').update(buffer).digest();
     }
 
-    private sha256(data: string): string {
-        return crypto.createHash('sha256').update(data).digest('hex');
+    protected sha256(data: string | Buffer): string {
+        const buffer = typeof data === 'string' ? Buffer.from(data, 'utf8') : data;
+        return crypto.createHash('sha256').update(buffer).digest('hex');
     }
 
-    private hmacSha256(data: string, key: string | Buffer, encoding: 'hex' | 'binary' = 'binary'): string | Buffer {
+    protected hmacSha256(data: string | Buffer, key: string | Buffer, encoding: 'hex' | 'binary' = 'binary'): string | Buffer {
+        const dataBuffer = typeof data === 'string' ? Buffer.from(data, 'utf8') : data;
         const hmac = crypto.createHmac('sha256', key);
-        hmac.update(data);
+        hmac.update(dataBuffer);
         return encoding === 'hex' ? hmac.digest('hex') : hmac.digest();
     }
 }

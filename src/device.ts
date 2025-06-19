@@ -83,7 +83,7 @@ export abstract class Device {
      * return number of chunks uploaded or 0 if it fails.
      */
     abstract uploadData(
-        data: string,
+        data: string | Buffer,
         path: string,
         contentType: string,
         chunk?: number,
@@ -99,7 +99,7 @@ export abstract class Device {
     /**
      * Read file by given path.
      */
-    abstract read(path: string, offset?: number, length?: number): Promise<string>;
+    abstract read(path: string, offset?: number, length?: number): Promise<Buffer>;
 
     /**
      * Transfer
@@ -110,7 +110,7 @@ export abstract class Device {
     /**
      * Write file by given path.
      */
-    abstract write(path: string, data: string, contentType: string): Promise<boolean>;
+    abstract write(path: string, data: string | Buffer, contentType: string): Promise<boolean>;
 
     /**
      * Move file from given source to given path, return true on success and false on failure.
