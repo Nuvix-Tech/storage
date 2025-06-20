@@ -13,10 +13,10 @@ describe('Storage', () => {
     beforeAll(async () => {
         // Create temporary directory for local tests
         tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'storage-test-'));
-        
+
         // Initialize devices
         localDevice = new Local(tempDir);
-        
+
         // Initialize Wasabi device with test credentials
         // Note: You'll need to set these environment variables or replace with your actual credentials
         wasabiDevice = new Wasabi(
@@ -64,10 +64,10 @@ describe('Storage', () => {
         test('should overwrite existing device', () => {
             const device1 = new Local(tempDir);
             const device2 = new Local(tempDir);
-            
+
             Storage.setDevice('test', device1);
             Storage.setDevice('test', device2);
-            
+
             expect(Storage.getDevice('test')).toBe(device2);
         });
     });

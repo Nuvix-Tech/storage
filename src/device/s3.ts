@@ -217,7 +217,8 @@ export class S3 extends Device {
         this.amzHeaders['x-amz-acl'] = this.acl;
 
         const response = await this.call(S3.METHOD_POST, uri, '', { uploads: '' });
-        return response.body['UploadId'];
+        const uploadId = response.body?.InitiateMultipartUploadResult?.UploadId?.[0];
+        return uploadId;
     }
 
     protected async uploadPart(data: Buffer, path: string, contentType: string, chunk: number, uploadId: string): Promise<string> {
@@ -276,8 +277,7 @@ export class S3 extends Device {
         }
 
         const response = await this.call(S3.METHOD_GET, uri, '', {}, false);
-        const arrayBuffer = await response.body.arrayBuffer();
-        return Buffer.from(arrayBuffer);
+        return Buffer.from(response.buffer);
     }
 
     async write(path: string, data: Buffer, contentType: string = ''): Promise<boolean> {
@@ -478,8 +478,12 @@ export class S3 extends Device {
         return `${algorithm} Credential=${this.accessKey}/${credentialScope},SignedHeaders=${Object.keys(sortedCombinedHeaders).join(';')},Signature=${signature}`;
     }
 
-    protected async call(method: string, uri: string, data: string | Buffer = '', parameters: Record<string, string> = {}, decode: boolean = true): Promise<any> {
-        const crypto = await import('crypto');
+    protected async call(method: string, uri: string, data: string | Buffer = '', parameters: Record<string, string> = {}, decode: boolean = true): Promise<{
+        body: any;
+        buffer: ArrayBuffer;
+        headers: Record<string, string>;
+        code: number;
+    }> {
 
         uri = this.getAbsolutePath(uri);
         const queryString = Object.keys(parameters).length ? '?' + Object.entries(parameters).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&') : '';
@@ -530,7 +534,8 @@ export class S3 extends Device {
             responseHeaders[key.toLowerCase()] = value;
         });
 
-        let body = await response.text();
+        const buffer = await response.arrayBuffer();
+        let body = new TextDecoder().decode(buffer);
 
         if (decode && (responseHeaders['content-type'] === 'application/xml' || (body.startsWith('<?xml') && responseHeaders['content-type'] !== 'image/svg+xml'))) {
             const xml2js = await import('xml2js');
@@ -540,6 +545,7 @@ export class S3 extends Device {
 
         return {
             body,
+            buffer,
             headers: responseHeaders,
             code: response.status
         };

@@ -103,7 +103,7 @@ describe('S3 Device', () => {
                 testCredentials.bucket,
                 S3.US_EAST_1
             );
-            
+
             const expectedHost = `${testCredentials.bucket}.s3.${S3.US_EAST_1}.amazonaws.com`;
             expect((device as any).headers.host).toBe(expectedHost);
         });
@@ -116,7 +116,7 @@ describe('S3 Device', () => {
                 testCredentials.bucket,
                 S3.CN_NORTH_1
             );
-            
+
             const expectedHost = `${testCredentials.bucket}.s3.${S3.CN_NORTH_1}.amazonaws.cn`;
             expect((device as any).headers.host).toBe(expectedHost);
         });
@@ -132,7 +132,7 @@ describe('S3 Device', () => {
                 S3.ACL_PRIVATE,
                 customEndpoint
             );
-            
+
             const expectedHost = `${testCredentials.bucket}.${customEndpoint}`;
             expect((device as any).headers.host).toBe(expectedHost);
         });
@@ -153,20 +153,20 @@ describe('S3 Device', () => {
     describe('Retry Configuration', () => {
         test('should allow setting retry attempts', () => {
             const originalAttempts = (S3 as any).retryAttempts;
-            
+
             S3.setRetryAttempts(5);
             expect((S3 as any).retryAttempts).toBe(5);
-            
+
             // Reset to original value
             S3.setRetryAttempts(originalAttempts);
         });
 
         test('should allow setting retry delay', () => {
             const originalDelay = (S3 as any).retryDelay;
-            
+
             S3.setRetryDelay(1000);
             expect((S3 as any).retryDelay).toBe(1000);
-            
+
             // Reset to original value
             S3.setRetryDelay(originalDelay);
         });
@@ -209,11 +209,11 @@ describe('S3 Device', () => {
             const method = 'GET';
             const uri = '/test-file.txt';
             const parameters = {};
-            
+
             // Set required AMZ headers for signature generation
             (s3Device as any).amzHeaders['x-amz-date'] = '20230101T000000Z';
             (s3Device as any).amzHeaders['x-amz-content-sha256'] = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
-            
+
             const signature = (s3Device as any).getSignatureV4(method, uri, parameters);
             expect(signature).toContain('AWS4-HMAC-SHA256');
             expect(signature).toContain('Credential=');
@@ -239,11 +239,11 @@ describe('S3 Device', () => {
 
             // Mock the write method to avoid actual S3 calls
             const writeSpy = jest.spyOn(s3Device, 'write').mockResolvedValue(true);
-            
+
             const result = await s3Device.upload('test-file.txt', 'destination.txt');
             expect(result).toBe(1);
             expect(writeSpy).toHaveBeenCalled();
-            
+
             writeSpy.mockRestore();
             (global as any).import = originalImport;
         });
@@ -252,12 +252,12 @@ describe('S3 Device', () => {
             const testPath = 'test-multipart.txt';
             const testContent = 'Test content for multipart upload';
             const testContentType = 'text/plain';
-            
+
             // Mock the call method to simulate AWS responses
             const callSpy = jest.spyOn(s3Device as any, 'call').mockResolvedValue({
                 body: { UploadId: 'test-upload-id-123' }
             });
-            
+
             const uploadId = await (s3Device as any).createMultipartUpload(testPath, testContentType);
             expect(uploadId).toBe('test-upload-id-123');
             expect(callSpy).toHaveBeenCalledWith(
@@ -266,7 +266,7 @@ describe('S3 Device', () => {
                 '',
                 { uploads: '' }
             );
-            
+
             callSpy.mockRestore();
         });
     });
@@ -336,12 +336,12 @@ describe('S3 Device', () => {
 
             // Mock the listObjects method
             const listObjectsSpy = jest.spyOn(s3Device as any, 'listObjects').mockResolvedValue(mockListResponse);
-            
+
             const result = await s3Device.getFiles('test-dir/');
             expect(result.IsTruncated).toBe(false);
             expect(result.KeyCount).toBe(2);
             expect(result.MaxKeys).toBe(1000);
-            
+
             listObjectsSpy.mockRestore();
         });
     });

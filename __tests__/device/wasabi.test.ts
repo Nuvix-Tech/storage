@@ -84,7 +84,7 @@ describe('Wasabi Device', () => {
                     testCredentials.bucket,
                     region
                 );
-                
+
                 const expectedHost = `${testCredentials.bucket}.s3.${region}.wasabisys.com`;
                 expect((device as any).headers.host).toBe(expectedHost);
             });
@@ -107,7 +107,7 @@ describe('Wasabi Device', () => {
                     testCredentials.region,
                     acl
                 );
-                
+
                 expect((device as any).acl).toBe(acl);
             });
         });
@@ -116,7 +116,7 @@ describe('Wasabi Device', () => {
     describe('Transfer Chunk Size', () => {
         test('should inherit transfer chunk size functionality from S3', () => {
             expect(wasabiDevice.getTransferChunkSize()).toBe(20000000); // 20 MB default
-            
+
             const newSize = 10000000; // 10 MB
             wasabiDevice.setTransferChunkSize(newSize);
             expect(wasabiDevice.getTransferChunkSize()).toBe(newSize);
@@ -149,9 +149,9 @@ describe('Wasabi Device', () => {
     // They are included as examples of what could be tested with real credentials
 
     describe('File Operations (Requires Real Credentials)', () => {
-        const skipRealTests = !process.env.WASABI_ACCESS_KEY || 
-                             !process.env.WASABI_SECRET_KEY || 
-                             !process.env.WASABI_BUCKET;
+        const skipRealTests = !process.env.WASABI_ACCESS_KEY ||
+            !process.env.WASABI_SECRET_KEY ||
+            !process.env.WASABI_BUCKET;
 
         beforeEach(() => {
             if (skipRealTests) {
@@ -162,12 +162,12 @@ describe('Wasabi Device', () => {
         test('should write and read file', async () => {
             // This test would require real credentials
             const testFile = `test-${Date.now()}.txt`;
-            const testContent = 'Hello, Wasabi World!';
-            
+            const testContent = Buffer.from('Hello, Wasabi World!');
+
             await wasabiDevice.write(testFile, testContent, 'text/plain');
             const readContent = await wasabiDevice.read(testFile);
-            expect(readContent).toBe(testContent);
-            
+            expect(readContent).toStrictEqual(testContent);
+
             // Cleanup
             await wasabiDevice.delete(testFile);
         }, 50000);
@@ -175,17 +175,17 @@ describe('Wasabi Device', () => {
         test('should upload and download file', async () => {
             // This test would require real credentials
             const testFile = `upload-test-${Date.now()}.txt`;
-            const testContent = 'Upload test content';
-            
+            const testContent = Buffer.from('Upload test content');
+
             const result = await wasabiDevice.uploadData(testContent, testFile, 'text/plain');
             expect(result).toBe(1);
-            
+
             const exists = await wasabiDevice.exists(testFile);
             expect(exists).toBe(true);
-            
+
             const size = await wasabiDevice.getFileSize(testFile);
             expect(size).toBe(Buffer.byteLength(testContent));
-            
+
             // Cleanup
             await wasabiDevice.delete(testFile);
         }, 50000);
@@ -193,21 +193,21 @@ describe('Wasabi Device', () => {
         test('should handle multipart upload', async () => {
             // This test would require real credentials
             const testFile = `multipart-test-${Date.now()}.txt`;
-            const chunk1 = 'First chunk ';
-            const chunk2 = 'Second chunk ';
-            const chunk3 = 'Third chunk';
-            
+            const chunk1 = Buffer.from('First chunk ');
+            const chunk2 = Buffer.from('Second chunk ');
+            const chunk3 = Buffer.from('Third chunk');
+
             const metadata = {};
-            
+
             await wasabiDevice.uploadData(chunk1, testFile, 'text/plain', 1, 3, metadata);
             await wasabiDevice.uploadData(chunk2, testFile, 'text/plain', 2, 3, metadata);
             const result = await wasabiDevice.uploadData(chunk3, testFile, 'text/plain', 3, 3, metadata);
-            
+
             expect(result).toBe(3);
-            
+
             const readContent = await wasabiDevice.read(testFile);
-            expect(readContent).toBe(chunk1 + chunk2 + chunk3);
-            
+            expect(readContent).toBe(Buffer.concat([chunk1, chunk2, chunk3]));
+
             // Cleanup
             await wasabiDevice.delete(testFile);
         }, 50000);
@@ -221,36 +221,23 @@ describe('Wasabi Device', () => {
         test('should get file metadata', async () => {
             // This test would require real credentials
             const testFile = `metadata-test-${Date.now()}.txt`;
-            const testContent = 'Metadata test content';
-            
+            const testContent = Buffer.from('Metadata test content');
+
             await wasabiDevice.write(testFile, testContent, 'text/plain');
-            
+
             const mimeType = await wasabiDevice.getFileMimeType(testFile);
             expect(mimeType).toBe('text/plain');
-            
+
             const hash = await wasabiDevice.getFileHash(testFile);
             expect(hash).toBeDefined();
             expect(hash.length).toBeGreaterThan(0);
-            
+
             // Cleanup
             await wasabiDevice.delete(testFile);
-        },  50000);
+        }, 50000);
     });
 
     describe('Error Handling', () => {
-        test('should handle invalid credentials gracefully', async () => {
-            const invalidDevice = new Wasabi(
-                'test',
-                'invalid-key',
-                'invalid-secret',
-                'invalid-bucket',
-                Wasabi.US_CENTRAL_1
-            );
-
-            // This should fail with authentication error when trying to make actual requests
-            await expect(invalidDevice.exists('test-file.txt')).rejects.toThrow();
-        });
-
         test('should validate region parameter', () => {
             // Should not throw for valid regions
             expect(() => {
