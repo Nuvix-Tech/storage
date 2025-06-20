@@ -20,4 +20,4 @@
   },
   "include": ["src", "index.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "__tests__"]
-} 
+}

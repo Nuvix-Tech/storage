@@ -1,17 +1,17 @@
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import typescript from '@rollup/plugin-typescript';
-import dts from 'rollup-plugin-dts';
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import typescript from "@rollup/plugin-typescript";
+import dts from "rollup-plugin-dts";
 
-const external = ['fs', 'fs/promises', 'path', 'crypto', 'os', 'xml2js'];
+const external = ["fs", "fs/promises", "path", "crypto", "os", "xml2js"];
 
 export default [
   // ES Module build
   {
-    input: 'index.ts',
+    input: "index.ts",
     output: {
-      file: 'dist/index.esm.js',
-      format: 'es',
+      file: "dist/index.esm.js",
+      format: "es",
       sourcemap: true,
     },
     external,
@@ -21,19 +21,19 @@ export default [
       }),
       commonjs(),
       typescript({
-        tsconfig: './tsconfig.json',
+        tsconfig: "./tsconfig.json",
         outputToFilesystem: true,
       }),
     ],
   },
   // CommonJS build
   {
-    input: 'index.ts',
+    input: "index.ts",
     output: {
-      file: 'dist/index.cjs.js',
-      format: 'cjs',
+      file: "dist/index.cjs.js",
+      format: "cjs",
       sourcemap: true,
-      exports: 'named',
+      exports: "named",
     },
     external,
     plugins: [
@@ -42,17 +42,17 @@ export default [
       }),
       commonjs(),
       typescript({
-        tsconfig: './tsconfig.json',
+        tsconfig: "./tsconfig.json",
         outputToFilesystem: false,
       }),
     ],
   },
   // Type definitions
   {
-    input: 'index.ts',
+    input: "index.ts",
     output: {
-      file: 'dist/index.d.ts',
-      format: 'es',
+      file: "dist/index.d.ts",
+      format: "es",
     },
     external,
     plugins: [dts()],
