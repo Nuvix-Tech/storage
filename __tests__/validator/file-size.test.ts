@@ -33,14 +33,6 @@ describe('FileSize Validator', () => {
         test('should return correct description', () => {
             expect(validator.getDescription()).toBe(`File size can't be bigger than ${maxSize}`);
         });
-
-        test('should return correct type', () => {
-            expect(validator.getType()).toBe(Validator.TYPE_INTEGER);
-        });
-
-        test('should not be array type', () => {
-            expect(validator.isArray()).toBe(false);
-        });
     });
 
     describe('Validation Logic', () => {

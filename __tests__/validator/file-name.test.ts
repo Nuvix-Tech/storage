@@ -13,13 +13,6 @@ describe('FileName Validator', () => {
             expect(fileNameValidator.getDescription()).toBe('Filename is not valid');
         });
 
-        test('should return correct type', () => {
-            expect(fileNameValidator.getType()).toBe(Validator.TYPE_STRING);
-        });
-
-        test('should not be array type', () => {
-            expect(fileNameValidator.isArray()).toBe(false);
-        });
     });
 
     describe('Inheritance', () => {

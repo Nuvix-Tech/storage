@@ -30,25 +30,4 @@ export class FileName extends Validator {
         return true;
     }
 
-    /**
-     * Is array
-     *
-     * Function will return true if object is array.
-     *
-     * @returns boolean
-     */
-    isArray(): boolean {
-        return false;
-    }
-
-    /**
-     * Get Type
-     *
-     * Returns validator type.
-     *
-     * @returns string
-     */
-    getType(): string {
-        return Validator.TYPE_STRING;
-    }
 }

@@ -70,7 +70,7 @@ describe('Local Device', () => {
         test('should write and read file', async () => {
             await localDevice.write(testFile, testContent);
             const readContent = await localDevice.read(testFile);
-            expect(readContent).toBe(testContent);
+            expect(readContent.toString()).toBe(testContent);
         });
 
         test('should check if file exists', async () => {
@@ -118,7 +118,7 @@ describe('Local Device', () => {
             expect(await localDevice.exists(targetFile)).toBe(true);
             
             const readContent = await localDevice.read(targetFile);
-            expect(readContent).toBe(testContent);
+            expect(readContent.toString()).toBe(testContent);
         });
 
         test('should not move file to same location', async () => {
@@ -130,7 +130,7 @@ describe('Local Device', () => {
         test('should read file with offset and length', async () => {
             await localDevice.write(testFile, testContent);
             const partialContent = await localDevice.read(testFile, 7, 5); // "World"
-            expect(partialContent).toBe('World');
+            expect(partialContent.toString()).toBe('World');
         });
     });
 
@@ -144,7 +144,7 @@ describe('Local Device', () => {
             expect(await localDevice.exists(testFile)).toBe(true);
             
             const readContent = await localDevice.read(testFile);
-            expect(readContent).toBe(testContent);
+            expect(readContent.toString()).toBe(testContent);
         });
 
         test('should upload data (single chunk)', async () => {
@@ -153,7 +153,7 @@ describe('Local Device', () => {
             expect(await localDevice.exists(testFile)).toBe(true);
             
             const readContent = await localDevice.read(testFile);
-            expect(readContent).toBe(testContent);
+            expect(readContent.toString()).toBe(testContent);
         });
 
         test('should handle chunked upload', async () => {
@@ -172,7 +172,7 @@ describe('Local Device', () => {
             // Check final content
             expect(await localDevice.exists(testFile)).toBe(true);
             const readContent = await localDevice.read(testFile);
-            expect(readContent).toBe(fullContent);
+            expect(readContent.toString()).toBe(fullContent);
         });
     });
 
@@ -278,7 +278,7 @@ describe('Local Device', () => {
                 // Verify transfer
                 expect(await targetDevice.exists(targetFile)).toBe(true);
                 const transferredContent = await targetDevice.read(targetFile);
-                expect(transferredContent).toBe(testContent);
+                expect(transferredContent.toString()).toBe(testContent);
             } finally {
                 // Clean up target directory
                 await fs.rm(targetTempDir, { recursive: true, force: true });

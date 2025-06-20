@@ -13,13 +13,6 @@ describe('File Validator', () => {
             expect(fileValidator.getDescription()).toBe('File is not valid');
         });
 
-        test('should return correct type', () => {
-            expect(fileValidator.getType()).toBe('string');
-        });
-
-        test('should not be array type', () => {
-            expect(fileValidator.isArray()).toBe(false);
-        });
     });
 
     describe('Validation Logic', () => {
@@ -73,8 +66,6 @@ describe('File Validator', () => {
         test('should implement required methods', () => {
             expect(typeof fileValidator.isValid).toBe('function');
             expect(typeof fileValidator.getDescription).toBe('function');
-            expect(typeof fileValidator.getType).toBe('function');
-            expect(typeof fileValidator.isArray).toBe('function');
         });
     });
 
@@ -107,14 +98,5 @@ describe('File Validator', () => {
             expect(fileValidator.isValid([])).toBe(true);
         });
     });
-
-    describe('Type Validation', () => {
-        test('should return string type', () => {
-            expect(fileValidator.getType()).toBe(Validator.TYPE_STRING);
-        });
-
-        test('should not be array validator', () => {
-            expect(fileValidator.isArray()).toBe(false);
-        });
-    });
+    
 });

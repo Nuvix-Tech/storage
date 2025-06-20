@@ -43,13 +43,6 @@ describe('FileExt Validator', () => {
             expect(validator.getDescription()).toBe('File extension is not valid');
         });
 
-        test('should return correct type', () => {
-            expect(validator.getType()).toBe('string');
-        });
-
-        test('should not be array type', () => {
-            expect(validator.isArray()).toBe(false);
-        });
     });
 
     describe('Validation Logic', () => {

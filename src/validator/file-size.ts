@@ -26,28 +26,10 @@ export class FileSize extends Validator {
             return false;
         }
 
-        if (fileSize > this.max) {
+        if (fileSize > this.max || fileSize < 0) {
             return false;
         }
 
         return true;
-    }
-
-    /**
-     * Is array
-     *
-     * Function will return true if object is array.
-     */
-    isArray(): boolean {
-        return false;
-    }
-
-    /**
-     * Get Type
-     *
-     * Returns validator type.
-     */
-    getType(): string {
-        return Validator.TYPE_INTEGER;
     }
 }

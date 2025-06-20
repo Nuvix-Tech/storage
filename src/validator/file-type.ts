@@ -24,7 +24,7 @@ export class FileType extends Validator {
 
     constructor(allowed: string[]) {
         super();
-        
+
         for (const key of allowed) {
             if (!(key in this.types)) {
                 throw new Error('Unknown file mime type');
@@ -49,7 +49,11 @@ export class FileType extends Validator {
     async isValid(path: string): Promise<boolean> {
         try {
             const buffer = await readFile(path);
-            const bytes = buffer.toString('binary', 0, 8);
+
+            // Calculate the maximum signature length needed
+            const maxSignatureLength = Math.max(...Object.values(this.types).map(sig => sig.length));
+            const bytesToRead = Math.min(buffer.length, Math.max(8, maxSignatureLength));
+            const bytes = buffer.toString('binary', 0, bytesToRead);
 
             for (const key of this.allowed) {
                 if (bytes.indexOf(this.types[key]) === 0) {
@@ -63,17 +67,4 @@ export class FileType extends Validator {
         }
     }
 
-    /**
-     * Is array
-     */
-    isArray(): boolean {
-        return false;
-    }
-
-    /**
-     * Get Type
-     */
-    getType(): string {
-        return 'string';
-    }
 }

@@ -24,14 +24,6 @@ export class FileExt extends Validator {
         return this.allowed.includes(ext);
     }
 
-    isArray(): boolean {
-        return false;
-    }
-
-    getType(): string {
-        return 'string';
-    }
-
     private getFileExtension(filename: string): string {
         const lastDotIndex = filename.lastIndexOf('.');
         return lastDotIndex !== -1 ? filename.substring(lastDotIndex + 1) : '';

@@ -31,13 +31,6 @@ describe('Upload Validator', () => {
             expect(uploadValidator.getDescription()).toBe('Not a valid upload file');
         });
 
-        test('should return correct type', () => {
-            expect(uploadValidator.getType()).toBe('string');
-        });
-
-        test('should not be array type', () => {
-            expect(uploadValidator.isArray()).toBe(false);
-        });
     });
 
     describe('Inheritance', () => {
@@ -49,8 +42,6 @@ describe('Upload Validator', () => {
         test('should implement required methods', () => {
             expect(typeof uploadValidator.isValid).toBe('function');
             expect(typeof uploadValidator.getDescription).toBe('function');
-            expect(typeof uploadValidator.getType).toBe('function');
-            expect(typeof uploadValidator.isArray).toBe('function');
         });
     });
 

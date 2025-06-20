@@ -28,25 +28,4 @@ export class Upload extends Validator {
         }
     }
 
-    /**
-     * Is array
-     *
-     * Function will return true if object is array.
-     *
-     * @returns false - this validator doesn't handle arrays
-     */
-    isArray(): boolean {
-        return false;
-    }
-
-    /**
-     * Get Type
-     *
-     * Returns validator type.
-     *
-     * @returns The validator type
-     */
-    getType(): string {
-        return 'string';
-    }
 }

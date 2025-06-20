@@ -74,14 +74,6 @@ describe('FileType Validator', () => {
         test('should return correct description', () => {
             expect(validator.getDescription()).toBe('File mime-type is not allowed ');
         });
-
-        test('should return correct type', () => {
-            expect(validator.getType()).toBe('string');
-        });
-
-        test('should not be array type', () => {
-            expect(validator.isArray()).toBe(false);
-        });
     });
 
     describe('File Type Detection', () => {
@@ -92,7 +84,7 @@ describe('FileType Validator', () => {
             beforeEach(async () => {
                 jpegValidator = new FileType([FileType.FILE_TYPE_JPEG]);
                 jpegFile = path.join(tempDir, 'test.jpg');
-                
+
                 // Create a mock JPEG file with JPEG signature
                 const jpegSignature = Buffer.from([0xFF, 0xD8, 0xFF]);
                 await fs.writeFile(jpegFile, jpegSignature);
@@ -106,7 +98,7 @@ describe('FileType Validator', () => {
             test('should reject non-JPEG files when only JPEG allowed', async () => {
                 const textFile = path.join(tempDir, 'text.jpg'); // Wrong content, right extension
                 await fs.writeFile(textFile, 'This is not a JPEG file');
-                
+
                 const result = await jpegValidator.isValid(textFile);
                 expect(result).toBe(false);
             });
@@ -119,7 +111,7 @@ describe('FileType Validator', () => {
             beforeEach(async () => {
                 pngValidator = new FileType([FileType.FILE_TYPE_PNG]);
                 pngFile = path.join(tempDir, 'test.png');
-                
+
                 // Create a mock PNG file with PNG signature
                 const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a]);
                 await fs.writeFile(pngFile, pngSignature);
@@ -133,7 +125,7 @@ describe('FileType Validator', () => {
             test('should reject non-PNG files when only PNG allowed', async () => {
                 const textFile = path.join(tempDir, 'text.png'); // Wrong content, right extension
                 await fs.writeFile(textFile, 'This is not a PNG file');
-                
+
                 const result = await pngValidator.isValid(textFile);
                 expect(result).toBe(false);
             });
@@ -146,7 +138,7 @@ describe('FileType Validator', () => {
             beforeEach(async () => {
                 gifValidator = new FileType([FileType.FILE_TYPE_GIF]);
                 gifFile = path.join(tempDir, 'test.gif');
-                
+
                 // Create a mock GIF file with GIF signature
                 const gifSignature = Buffer.from('GIF', 'ascii');
                 await fs.writeFile(gifFile, gifSignature);
@@ -160,7 +152,7 @@ describe('FileType Validator', () => {
             test('should reject non-GIF files when only GIF allowed', async () => {
                 const textFile = path.join(tempDir, 'text.gif'); // Wrong content, right extension
                 await fs.writeFile(textFile, 'This is not a GIF file');
-                
+
                 const result = await gifValidator.isValid(textFile);
                 expect(result).toBe(false);
             });
@@ -173,9 +165,9 @@ describe('FileType Validator', () => {
             beforeEach(async () => {
                 gzipValidator = new FileType([FileType.FILE_TYPE_GZIP]);
                 gzipFile = path.join(tempDir, 'test.gz');
-                
-                // For GZIP, the signature is stored as MIME type string in the types map
-                // We'll create a file that starts with the expected string
+
+                // Create a file that starts with the MIME type string expected by the validator
+                // The validator looks for 'application/x-gzip' at the beginning of the binary data
                 await fs.writeFile(gzipFile, 'application/x-gzip');
             });
 
@@ -248,7 +240,7 @@ describe('FileType Validator', () => {
             // Create a file and then make it unreadable (if possible on the platform)
             const restrictedFile = path.join(tempDir, 'restricted.jpg');
             await fs.writeFile(restrictedFile, 'test content');
-            
+
             try {
                 await fs.chmod(restrictedFile, 0o000); // Remove all permissions
                 const result = await validator.isValid(restrictedFile);
@@ -286,7 +278,7 @@ describe('FileType Validator', () => {
             const misleadingFile = path.join(tempDir, 'misleading.jpg');
             const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a]);
             await fs.writeFile(misleadingFile, pngSignature);
-            
+
             const result = await validator.isValid(misleadingFile);
             expect(result).toBe(true); // Should detect as PNG based on content, not extension
         });
@@ -297,7 +289,7 @@ describe('FileType Validator', () => {
             const padding = Buffer.alloc(10000, 'x'); // 10KB of padding
             const content = Buffer.concat([jpegSignature, padding]);
             await fs.writeFile(largeFile, content);
-            
+
             const result = await validator.isValid(largeFile);
             expect(result).toBe(true);
         });
@@ -307,7 +299,7 @@ describe('FileType Validator', () => {
             // Only first 2 bytes of JPEG signature
             const partialSignature = Buffer.from([0xFF, 0xD8]);
             await fs.writeFile(partialFile, partialSignature);
-            
+
             const result = await validator.isValid(partialFile);
             expect(result).toBe(false); // Incomplete signature
         });
@@ -324,7 +316,7 @@ describe('FileType Validator', () => {
             const jpegFile = path.join(tempDir, 'strict-test.jpg');
             const jpegSignature = Buffer.from([0xFF, 0xD8, 0xFF]);
             await fs.writeFile(jpegFile, jpegSignature);
-            
+
             const result = await strictValidator.isValid(jpegFile);
             expect(result).toBe(false);
         });
@@ -339,7 +331,7 @@ describe('FileType Validator', () => {
                 Buffer.from('additional content that should not affect detection')
             ]);
             await fs.writeFile(testFile, content);
-            
+
             const jpegValidator = new FileType([FileType.FILE_TYPE_JPEG]);
             const result = await jpegValidator.isValid(testFile);
             expect(result).toBe(true);
@@ -349,7 +341,7 @@ describe('FileType Validator', () => {
             const shortFile = path.join(tempDir, 'short.png');
             // Only 3 bytes, but PNG signature needs 6
             await fs.writeFile(shortFile, Buffer.from([0x89, 0x50, 0x4e]));
-            
+
             const pngValidator = new FileType([FileType.FILE_TYPE_PNG]);
             const result = await pngValidator.isValid(shortFile);
             expect(result).toBe(false);
@@ -364,7 +356,7 @@ describe('FileType Validator', () => {
             expect(() => new FileType([FileType.FILE_TYPE_PNG])).not.toThrow();
             expect(() => new FileType([FileType.FILE_TYPE_GIF])).not.toThrow();
             expect(() => new FileType([FileType.FILE_TYPE_GZIP])).not.toThrow();
-            
+
             expect(() => new FileType(['invalid-type'])).toThrow();
         });
     });

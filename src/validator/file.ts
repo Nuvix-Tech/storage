@@ -16,26 +16,4 @@ export class File extends Validator{
     public isValid(name: any): boolean {
         return true;
     }
-
-    /**
-     * Is array
-     *
-     * Function will return true if object is array.
-     *
-     * @return boolean
-     */
-    public isArray(): boolean {
-        return false;
-    }
-
-    /**
-     * Get Type
-     *
-     * Returns validator type.
-     *
-     * @return string
-     */
-    public getType(): string {
-        return 'string';
-    }
 }
