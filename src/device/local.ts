@@ -1,5 +1,5 @@
-import { Device } from "../device";
-import { Storage } from "../storage";
+import { Device } from "../device.js";
+import { Storage } from "../storage.js";
 import { promises as fs } from "fs";
 import path from "path";
 import { createHash } from "crypto";

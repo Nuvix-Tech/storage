@@ -1,5 +1,5 @@
-import { Storage } from "../storage";
-import { S3 } from "./s3";
+import { Storage } from "../storage.js";
+import { S3 } from "./s3.js";
 
 export class MinIO extends S3 {
   /**

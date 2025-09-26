@@ -1,4 +1,4 @@
-import { Validator } from "./validator";
+import { Validator } from "./validator.js";
 
 export class File extends Validator {
   public getDescription(): string {

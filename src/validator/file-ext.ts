@@ -1,4 +1,4 @@
-import { Validator } from "./validator";
+import { Validator } from "./validator.js";
 
 export class FileExt extends Validator {
   static readonly TYPE_JPEG = "jpeg";

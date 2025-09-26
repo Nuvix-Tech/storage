@@ -1,5 +1,5 @@
-import { Device } from "../device";
-import { Storage } from "../storage";
+import { Device } from "../device.js";
+import { Storage } from "../storage.js";
 import crypto from "crypto";
 
 export class S3 extends Device {

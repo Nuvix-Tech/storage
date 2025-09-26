@@ -1,5 +1,5 @@
 import { readFile } from "fs/promises";
-import { Validator } from "./validator";
+import { Validator } from "./validator.js";
 
 export class FileType extends Validator {
   /**

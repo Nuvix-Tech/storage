@@ -1,4 +1,4 @@
-import { Validator } from "./validator";
+import { Validator } from "./validator.js";
 import { promises as fs } from "fs";
 
 export class Upload extends Validator {
